@@ -54,12 +54,15 @@ class Program
 
         var threadList = new List<Thread>() {
             TestCommonGenericNew<Dog>(),
+            TestFastGenericNewNoInit<Dog>(),
             TestFastGenericNew<Dog>(),
+            
             TestFastGenericNewNoInit<Cat>(),
             TestCommonGenericNew<Cat>(),
-            TestFastGenericNewNoInit<Dog>(),
+            
             TestFastGenericNewOneTime<Girl>(),
             TestFastGenericNewOneTime<Boy>(),
+            
             TestCommonGenericNew<Girl>(),
             TestCommonGenericNew<Boy>(),
         };

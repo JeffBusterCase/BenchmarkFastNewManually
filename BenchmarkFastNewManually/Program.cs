@@ -1,4 +1,5 @@
 ﻿using FastGenericNew;
+using System.Diagnostics;
 
 class Dog
 {
@@ -30,7 +31,7 @@ class Boy
 
 class Place
 {
-    public double Spent { get; set; }
+    public TimeSpan Spent { get; set; }
     public string Label { get; set; }
 }
 
@@ -63,9 +64,11 @@ class Program
             TestCommonGenericNew<Boy>(),
         };
 
-        foreach (var thread in threadList) thread.Start();
-
-        while (threadList.Any(any => any.IsAlive)) ;
+        foreach (var thread in threadList)
+        {
+            thread.Start();
+            thread.Join();
+        }
 
         int pos = 0;
         foreach (var place in places.OrderBy(o => o.Spent)) Console.WriteLine($"{++pos}{place.Label}");
@@ -75,10 +78,12 @@ class Program
     {
         var thread = new Thread(() =>
         {
-            var start = DateTime.Now;
+            var stopw = new Stopwatch();
+            stopw.Start();
             FastNew.CreateInstance<T>();
-            var spent = (DateTime.Now - start).TotalMilliseconds;
-            var label = ($"# Place, Total time spent on FastNew[One Iter]   with <{typeof(T).Name}>: {spent} mili");
+            stopw.Stop();
+            var spent = stopw.Elapsed;
+            var label = ($"# Place, Total time spent on FastNew[One Iter]   with <{typeof(T).Name}>: {spent.TotalMilliseconds} mili");
             places.Add(new Place() { Spent = spent, Label = label });
         });
 
@@ -89,14 +94,15 @@ class Program
     {
         var thread = new Thread(() =>
         {
-            var start = DateTime.Now;
-
+            var stopw = new Stopwatch();
+            stopw.Start();
             for (var i = 0; i < ITERATIONS; i++)
             {
                 FastNew.CreateInstance<T>();
             }
-            var spent = (DateTime.Now - start).TotalMilliseconds;
-            var label = ($"# Place, Total time spent on FastNew[NoInit]     with <{typeof(T).Name}>: {spent} mili");
+            stopw.Stop();
+            var spent = stopw.Elapsed;
+            var label = ($"# Place, Total time spent on FastNew[NoInit]     with <{typeof(T).Name}>: {spent.TotalMilliseconds} mili");
             places.Add(new Place() { Spent = spent, Label = label });
         });
 
@@ -108,14 +114,15 @@ class Program
         var thread = new Thread(() =>
         {
             FastGenericNew.FastNew.CreateInstance<T>();
-            var start = DateTime.Now;
-
+            var stopw = new Stopwatch();
+            stopw.Start();
             for (var i = 0; i < ITERATIONS; i++)
             {
                 FastNew.CreateInstance<T>();
             }
-            var spent = (DateTime.Now - start).TotalMilliseconds;
-            var label = ($"# Place, Total time spent on FastNew[AfterInit]  with <{typeof(T).Name}>: {spent} mili");
+            stopw.Stop();
+            var spent = stopw.Elapsed;
+            var label = ($"# Place, Total time spent on FastNew[AfterInit]  with <{typeof(T).Name}>: {spent.TotalMilliseconds} mili");
             places.Add(new Place() { Spent = spent, Label = label });
         });
 
@@ -129,13 +136,15 @@ class Program
         var thread = new Thread(() =>
         {
             Activator.CreateInstance<T>();
-            var start = DateTime.Now;
+            var stopw = new Stopwatch();
+            stopw.Start();
             for (var i = 0; i < ITERATIONS; i++)
             {
                 var obj = Activator.CreateInstance<T>();
             }
-            var spent = (DateTime.Now - start).TotalMilliseconds;
-            var label = ($"# Place, Total time spent on Common              with <{typeof(T).Name}>: {spent} mili");
+            stopw.Stop();
+            var spent = stopw.Elapsed;
+            var label = ($"# Place, Total time spent on Common              with <{typeof(T).Name}>: {spent.TotalMilliseconds} mili");
             places.Add(new Place() { Spent = spent, Label = label });
         });
 
